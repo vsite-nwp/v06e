@@ -1,0 +1,25 @@
+#include <winres.h>
+#include "rc.h"
+
+IDD_DIALOG DIALOG DISCARDABLE  100, 100, 141, 73
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Text"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Text:",IDC_STATIC,5,10,41,9
+    EDITTEXT        IDC_EDIT1,5,22,131,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,14,54,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,76,54,50,14
+END
+
+IDM_MAIN MENU DISCARDABLE 
+BEGIN
+    POPUP "File"
+    BEGIN
+        MENUITEM "&Text",                       ID_TEXT
+        MENUITEM "&Font",                       ID_FONT
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_EXIT
+    END
+END
+
