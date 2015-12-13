@@ -17,4 +17,20 @@ protected:
 	void OnPaint(HDC hdc);
 	void OnCommand(int id);
 	void OnDestroy();
+public:
+	MainWindow()  {
+		lf.lfHeight = NULL;
+		lf.lfCharSet = 0;
+		lf.lfClipPrecision = 0;
+		lf.lfEscapement = 0;
+		lf.lfItalic = 0;
+		lf.lfOrientation = 0;
+		lf.lfQuality = 0;
+		lf.lfPitchAndFamily = 0;
+		lf.lfStrikeOut = 0;
+		lf.lfOutPrecision = 0;
+		lf.lfUnderline = 0;
+		lf.lfWeight = 0;
+		lf.lfWidth = 0;
+	};
 };
