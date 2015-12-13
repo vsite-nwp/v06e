@@ -12,6 +12,7 @@ protected:
 
 class MainWindow : public Window {
 protected:
+	CHOOSEFONT cf;
 	LOGFONT lf;
 	tstring t;
 	void OnPaint(HDC hdc);
@@ -19,7 +20,7 @@ protected:
 	void OnDestroy();
 public:
 	MainWindow()  {
-		lf.lfHeight = NULL;
+		lf.lfHeight = 50;
 		lf.lfCharSet = 0;
 		lf.lfClipPrecision = 0;
 		lf.lfEscapement = 0;
@@ -32,5 +33,6 @@ public:
 		lf.lfUnderline = 0;
 		lf.lfWeight = 0;
 		lf.lfWidth = 0;
+		cf.rgbColors = CF_EFFECTS;
 	};
 };
