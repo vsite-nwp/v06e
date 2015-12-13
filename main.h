@@ -33,6 +33,5 @@ public:
 		lf.lfUnderline = 0;
 		lf.lfWeight = 0;
 		lf.lfWidth = 0;
-		cf.rgbColors = CF_EFFECTS;
 	};
 };
