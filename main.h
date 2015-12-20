@@ -20,18 +20,18 @@ protected:
 	void OnDestroy();
 public:
 	MainWindow()  {
+		//LOGFONT
+		ZeroMemory(&lf, sizeof(lf));
 		lf.lfHeight = 50;
-		lf.lfCharSet = 0;
-		lf.lfClipPrecision = 0;
-		lf.lfEscapement = 0;
-		lf.lfItalic = 0;
-		lf.lfOrientation = 0;
-		lf.lfQuality = 0;
-		lf.lfPitchAndFamily = 0;
-		lf.lfStrikeOut = 0;
-		lf.lfOutPrecision = 0;
-		lf.lfUnderline = 0;
-		lf.lfWeight = 0;
-		lf.lfWidth = 0;
+		(tstring)lf.lfFaceName = "NWP";
+		
+		//CHOOSEFONT				  
+		ZeroMemory(&cf, sizeof(cf));
+		cf.lStructSize = sizeof(cf);
+		cf.Flags = CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS | CF_EFFECTS;
+		cf.lpLogFont = &lf;
+		
 	};
 };
+
+

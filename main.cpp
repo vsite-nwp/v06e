@@ -4,6 +4,7 @@
 
 
 
+
 int MyDialog::IDD(){
 	return IDD_DIALOG;
 }
@@ -21,12 +22,13 @@ bool MyDialog::OnOK(){
 
 
 
+
 void MainWindow::OnPaint(HDC hdc) {
 	
 	RECT rc;
 	GetClientRect(*this,&rc);
-	SelectObject(hdc, GetStockObject(BLACK_BRUSH));
-	HFONT hf=(HFONT)SelectObject(hdc, CreateFontIndirect(&lf));
+	HGDIOBJ hgdi0=SelectObject(hdc, GetStockObject(BLACK_BRUSH));
+	HGDIOBJ hgdi1=SelectObject(hdc, CreateFontIndirect(&lf));
 	SetTextColor(hdc, cf.rgbColors);
 	for (int i = 0; i < t.length(); ++i){
 		
@@ -37,21 +39,17 @@ void MainWindow::OnPaint(HDC hdc) {
 			}
 			
 		TextOut(hdc,i+1*rc.right-100,i*rc.bottom/t.length(),&t[i],1);
-		DeleteObject(hf);
+		
 		}
 		
 	}
-	
-	
+	DeleteObject(hgdi0);
+	DeleteObject(hgdi1);
 }
 
 void MainWindow::OnCommand(int id) {
 	switch(id){
 	case ID_FONT:
-		ZeroMemory(&cf, sizeof(cf));
-		cf.lStructSize = sizeof(cf);
-		cf.Flags = CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS | CF_EFFECTS;
-		cf.lpLogFont = &lf;
 		ChooseFont(&cf);
 		InvalidateRect(*this, NULL, true);
 		break;
