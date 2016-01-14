@@ -16,7 +16,6 @@ protected:
 	CHOOSEFONT cf;
 	LOGFONT lf;
 	tstring t;
-	HDC hdc;
 	void OnPaint(HDC hdc);
 	void OnCommand(int id);
 	void OnDestroy();
@@ -25,12 +24,11 @@ public:
 	MainWindow()  {
 		
 		//LOGFONT
-		hdc= GetDC(0);
+		HDC hdc=GetDC(0);
 		ZeroMemory(&lf, sizeof(lf)); 
-		int PointSize = (12*96) / 72;			//jedan point je 1/72 incha, a 96 pixela je po inchu
-												//za font pointa 12, broj pixela je 12*96/72=16
-		lf.lfHeight = -MulDiv(PointSize, GetDeviceCaps(hdc, LOGPIXELSY), 96);
-		(tstring)lf.lfFaceName = "NWP";
+		_tcscpy(lf.lfFaceName,_T("Arial"));
+		lf.lfHeight = -MulDiv(12, GetDeviceCaps(hdc, LOGPIXELSY), 72);
+		ReleaseDC(0, hdc);
 								  
 		//CHOOSEFONT				  
 		ZeroMemory(&cf, sizeof(cf));
@@ -40,7 +38,7 @@ public:
 			
 	}
 
-	~MainWindow() { ReleaseDC(0, hdc); }
+	~MainWindow() {}
 	
 };
 
