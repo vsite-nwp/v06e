@@ -26,6 +26,8 @@ class Window
 	HWND hw;
 
 protected:
+	
+	
 	virtual tstring ClassName();
 	bool Register(const tstring& name);
 	tstring GenerateClassName();
