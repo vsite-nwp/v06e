@@ -42,16 +42,17 @@ void MainWindow::OnPaint(HDC hdc) {
 	double dy = rc.bottom / s.size();
 	SetTextColor(hdc, col);
 	HFONT hf = (HFONT)SelectObject(hdc,CreateFontIndirect(&lf));
+	HBRUSH hb = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	for (int i = 0; i < s.size(); i++) {
 		for (int j = 0; j < 8; j++) {
 			RECT r = { j*dx, i*dy, (j + 1)*dx, (i + 1)*dy };
-			bool black = s[i] & (1 << (7 - j));
-			if (!black) FillRect(hdc, &r, HBRUSH(GetStockObject(BLACK_BRUSH)));
+			bool white = s[i] & (1 << (7 - j));
+			if (!white) FillRect(hdc, &r, hb);
 		}
 		RECT r = { 8*dx, i*dy, 9 *dx, (i + 1)*dy };
 		DrawText(hdc,&s[i],1,&r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 	}
-	DeleteObject(hf);
+	DeleteObject(SelectObject(hdc,hf));
 }
 
 MainWindow::MainWindow() : col(RGB(0, 0, 0)) {
