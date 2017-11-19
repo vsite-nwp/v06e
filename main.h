@@ -16,6 +16,10 @@ public:
 	tstring text;
 	MyDialog dia;
 	LOGFONT lf;
+	MainWindow(){
+		::ZeroMemory(&lf, sizeof(lf));
+		_tcscpy(lf.lfFaceName, _T("Arial"));
+	}
 protected:
 	
 	void OnPaint(HDC hdc);
