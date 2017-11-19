@@ -33,15 +33,16 @@ void MainWindow::OnPaint(HDC hdc) {
 		return;
 	RECT screen;
 	GetClientRect(*this,&screen);
-	int dx = screen.right / 9;
-	int dy = screen.bottom / text.size();
+	SetMapMode(hdc, MM_ANISOTROPIC);
+	SetViewportExtEx(hdc, screen.right, screen.bottom, NULL);
+	SetWindowExtEx(hdc,9,text.size(),0);
 	for (int i = 0; i < text.size(); i++) {
 		for (int j = 0; j < 8; j++) {
-			RECT r = { j*dx, i*dy, (j + 1)*dx, (i + 1)*dy };
+			RECT r = { j, i, (j + 1), (i + 1) };
 			if ((text[i] & (1 << (7 - j))))
 				FillRect(hdc, &r, (HBRUSH)GetStockObject(BLACK_BRUSH));
 		}
-		RECT r = { 8 * dx, i*dy, 9 * dx, (i + 1)*dy };
+		RECT r = { 8 , i, 9 , (i + 1) };
 		DrawText(hdc, &text[i], 1, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 	}
 }
