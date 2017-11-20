@@ -19,31 +19,35 @@ bool MyDialog::OnOK(){
 void MainWindow::OnPaint(HDC hdc) {
 	RECT rect;
 	GetClientRect(*this, &rect);
-	/*for (int i = 0; i < text.size(); i++) {
+	long x = rect.right / 9;
+	long y = rect.bottom / wintext.size();
+	for (int i = 0; i < wintext.size(); i++) {
 		for (int j = 0; j < 8; j++) {
-
-			HRGN x = CreateRectRgn(6, 3, 6, 3);
-			if (j % 2 == 0)
-				FillRgn(hdc, x, (HBRUSH) GetStockObject(BLACK_BRUSH));
+			rect = {j*x, i*y, (j + 1)*x, (i + 1)*y};
+			if ((wintext[i] & (1 << (7 - j))) == 0)
+				FillRect(hdc, &rect, (HBRUSH)GetStockObject(BLACK_BRUSH));
 		}
-	}*/
+		rect = {8*x, i*y, 9*x, (i + 1)*y};
+		DrawText(hdc, &wintext[i], 1, &rect, DT_RIGHT | DT_TOP);
+	}
 }
 
 void MainWindow::OnCommand(int id) {
 	switch (id) {
 	case ID_FONT:
 		break;
-	case ID_TEXT:
-		{MyDialog text;
-		text.text = wintext;
-		if (text.DoModal(0, *this) == IDOK)
-			wintext = text.text;
-		break;}
+	case ID_TEXT:{
+		MyDialog dlg;
+		dlg.text = wintext;
+		if (dlg.DoModal(0, *this) == IDOK)
+			wintext = dlg.text;
+		break;
+		}
 	case ID_EXIT:
 		DestroyWindow(*this);
 		break;
-		
 	}
+	InvalidateRect(*this, NULL, true);
 }
 
 void MainWindow::OnDestroy(){
