@@ -19,7 +19,8 @@ public:
 	MainWindow(){
 		::ZeroMemory(&lf, sizeof(lf));
 		_tcscpy(lf.lfFaceName, _T("Arial"));
-		lf.lfHeight = -20;
+		HDC hdc = GetDC(0);
+		lf.lfHeight = -12 * GetDeviceCaps(hdc, LOGPIXELSY) / 72;
 	}
 protected:
 	void OnPaint(HDC hdc);
