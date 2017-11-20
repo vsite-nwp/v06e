@@ -28,7 +28,7 @@ void MainWindow::OnPaint(HDC hdc) {
 				FillRect(hdc, &rect, (HBRUSH)GetStockObject(BLACK_BRUSH));
 		}
 		rect = {8*x, i*y, 9*x, (i + 1)*y};
-		DrawText(hdc, &wintext[i], 1, &rect, DT_RIGHT | DT_TOP);
+		DrawText(hdc, &wintext[i], 1, &rect, DT_RIGHT-1 | DT_TOP);
 	}
 }
 
