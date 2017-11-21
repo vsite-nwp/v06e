@@ -16,9 +16,9 @@ public:
 	tstring wintext;
 	MainWindow() : wintext("Luka Sever") {
 		ZeroMemory(&fl, sizeof(fl));
-		_tcscpy(fl.lfFaceName, _T("Arial"));
+		_tcscpy(fl.lfFaceName, _T("Bauhaus 93"));
 		HDC hdc = GetDC(0);
-		fl.lfHeight = -12 * GetDeviceCaps(hdc, LOGPIXELSY) / 72;
+		fl.lfHeight = -20 * GetDeviceCaps(hdc, LOGPIXELSY) / 72;
 		ReleaseDC(0, hdc);
 	}
 protected:
