@@ -15,12 +15,24 @@ bool MyDialog::OnOK(){
 	return true;
 }
 
+void GetFont(HWND master, LOGFONT &fl){
+	CHOOSEFONT cf;
+	ZeroMemory(&cf, sizeof cf);
+	cf.hwndOwner = master;
+	cf.lStructSize = sizeof cf;
+	cf.Flags = CF_INITTOLOGFONTSTRUCT
+		| CF_SCREENFONTS | CF_EFFECTS;
+	cf.lpLogFont = &fl;
+	ChooseFont(&cf);
+	}
+
 
 void MainWindow::OnPaint(HDC hdc) {
 	RECT rect;
 	GetClientRect(*this, &rect);
 	long x = rect.right / 9;
 	long y = rect.bottom / wintext.size();
+	HFONT used_font = (HFONT)SelectObject(hdc, CreateFontIndirect(&fl));
 	for (int i = 0; i < wintext.size(); i++) {
 		for (int j = 0; j < 8; j++) {
 			rect = {j*x, i*y, (j + 1)*x, (i + 1)*y};
@@ -30,12 +42,15 @@ void MainWindow::OnPaint(HDC hdc) {
 		rect = {8*x, i*y, 9*x, (i + 1)*y};
 		DrawText(hdc, &wintext[i], 1, &rect, DT_RIGHT-1 | DT_TOP);
 	}
+	DeleteObject(used_font);
 }
 
 void MainWindow::OnCommand(int id) {
 	switch (id) {
-	case ID_FONT:
+	case ID_FONT: {
+		GetFont(*this, fl);
 		break;
+		}	
 	case ID_TEXT:{
 		MyDialog dlg;
 		dlg.text = wintext;
