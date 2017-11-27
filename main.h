@@ -14,15 +14,15 @@ class MainWindow : public Window {
 
 public:
 	tstring text;
-	MyDialog dia;
+	
 	LOGFONT lf;
-	COLORREF fore, back;
+	COLORREF fore;
 	MainWindow(){
 		::ZeroMemory(&lf, sizeof(lf));
 		_tcscpy(lf.lfFaceName, _T("Arial"));
 		HDC hdc = GetDC(0);
 		lf.lfHeight = -12 * GetDeviceCaps(hdc, LOGPIXELSY) / 72;
-		fore = RGB(0,0,0);
+		fore = RGB(255,0,0);
 	}
 protected:
 	void OnPaint(HDC hdc);

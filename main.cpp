@@ -40,9 +40,6 @@ void MainWindow::OnPaint(HDC hdc) {
 	GetClientRect(*this, &screen);
 	int dy = screen.bottom / text.size();
 	int dx = screen.right / 9;
-	//SetMapMode(hdc, MM_ANISOTROPIC);
-	//SetViewportExtEx(hdc, screen.right, screen.bottom, NULL);
-	//SetWindowExtEx(hdc,18,text.size(),0);
 	Font f(lf);
 	DCSelObj d(hdc, f);
 	SetTextColor(hdc,fore);
@@ -53,27 +50,30 @@ void MainWindow::OnPaint(HDC hdc) {
 				FillRect(hdc, &r, (HBRUSH)GetStockObject(BLACK_BRUSH));
 		}
 		RECT r = { 8 * dx , i*dy, 9 * dx , (i + 1)*dy };
-		::DrawText(hdc, &text[i], 1, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
+		::DrawText(hdc, &text[i], 1, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 	}
 
 }
 
 void MainWindow::OnCommand(int id) {
+	MyDialog dia;
 	switch (id) {
 	case ID_FONT:
 		GetFont(*this, lf, fore);
 		break;
 	case ID_TEXT:
+		
 		dia.text = text;
 		if (dia.DoModal(NULL, *this) == IDOK) {
 			this->text = dia.text;
+			InvalidateRect(*this, NULL, true);
 		}
 		break;
 	case ID_EXIT:
 		DestroyWindow(*this);
 		break;
 	}
-	InvalidateRect(*this, NULL, true);
+	
 }
 
 void MainWindow::OnDestroy() {
