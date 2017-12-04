@@ -12,8 +12,10 @@ bool GetFont(HWND parent, LOGFONT &lf, COLORREF& col)
 	cf.hwndOwner = parent;
 	cf.lpLogFont = &lf;
 	cf.rgbColors = col;
+	bool r=ChooseFont(&cf);
 	col = cf.rgbColors;
-	return ChooseFont(&cf);
+	return r;
+	
 }
 
 
