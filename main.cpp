@@ -2,7 +2,7 @@
 #include "rc.h"
 
 
-void GetFont(HWND parent, LOGFONT &lf, COLORREF& col)
+bool GetFont(HWND parent, LOGFONT &lf, COLORREF& col)
 {
 	CHOOSEFONT cf;
 	ZeroMemory(&cf, sizeof cf);
@@ -12,8 +12,8 @@ void GetFont(HWND parent, LOGFONT &lf, COLORREF& col)
 	cf.hwndOwner = parent;
 	cf.lpLogFont = &lf;
 	cf.rgbColors = col;
-	ChooseFont(&cf);
-	col = cf.rgbColors ;
+	col = cf.rgbColors;
+	return ChooseFont(&cf);
 }
 
 
@@ -56,19 +56,21 @@ void MainWindow::OnPaint(HDC hdc) {
 }
 
 void MainWindow::OnCommand(int id) {
-	MyDialog dia;
+	
 	switch (id) {
 	case ID_FONT:
-		GetFont(*this, lf, fore);
+		if(GetFont(*this, lf, fore))InvalidateRect(*this, NULL, true);
 		break;
 	case ID_TEXT:
-		
+	{
+		MyDialog dia;
 		dia.text = text;
 		if (dia.DoModal(NULL, *this) == IDOK) {
 			this->text = dia.text;
 			InvalidateRect(*this, NULL, true);
 		}
 		break;
+	}
 	case ID_EXIT:
 		DestroyWindow(*this);
 		break;
