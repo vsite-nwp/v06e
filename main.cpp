@@ -21,7 +21,8 @@ void MainWindow::OnPaint(HDC hdc) {
 	GetClientRect(*this, &rc);
 	long x = rc.right / 9;
 	long y = rc.bottom / window_text.size();
-	HFONT selected_font = (HFONT)SelectObject(hdc, CreateFontIndirect(&font_style));
+	HFONT previous_font = (HFONT)SelectObject(hdc, CreateFontIndirect(&font_style));
+	SetTextColor(hdc, text_color);
 	for (int i = 0; i < window_text.size(); i++) {
 		for (int j = 0; j < 8; j++) {
 			rc = { j*x, i*y, (j + 1)*x, (i + 1)*y };
@@ -30,23 +31,25 @@ void MainWindow::OnPaint(HDC hdc) {
 		rc = { 8 * x, i*y, 9 * x, (i + 1)*y };
 		DrawText(hdc, &window_text[i], 1, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 	}
-	DeleteObject((HFONT)SelectObject(hdc, selected_font));
+	DeleteObject((HFONT)SelectObject(hdc, previous_font));
 }
 
-void GetFont(HWND parent, LOGFONT &fontstyle) {
+void GetFont(HWND parent, LOGFONT &fontstyle, COLORREF &color) {
 	CHOOSEFONT sel_font;
 	ZeroMemory(&sel_font, sizeof(sel_font));
 	sel_font.hwndOwner = parent;
 	sel_font.lStructSize = sizeof(sel_font);
 	sel_font.Flags = CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS | CF_EFFECTS;
 	sel_font.lpLogFont = &fontstyle;
+	sel_font.rgbColors = color;
 	ChooseFont(&sel_font);
+	color = sel_font.rgbColors;
 }
 
 void MainWindow::OnCommand(int id) {
 	switch(id){
 	case ID_FONT:
-		GetFont(*this, font_style);
+		GetFont(*this, font_style, text_color);
 		break;
 	case ID_TEXT: {
 		MyDialog dialog;
