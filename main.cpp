@@ -34,34 +34,38 @@ void MainWindow::OnPaint(HDC hdc) {
 	DeleteObject((HFONT)SelectObject(hdc, previous_font));
 }
 
-void GetFont(HWND parent, LOGFONT &fontstyle, COLORREF &color) {
+bool GetFont(HWND parent, LOGFONT &fontstyle, COLORREF &color) {
 	CHOOSEFONT sel_font;
+	bool changed;
 	ZeroMemory(&sel_font, sizeof(sel_font));
 	sel_font.hwndOwner = parent;
 	sel_font.lStructSize = sizeof(sel_font);
 	sel_font.Flags = CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS | CF_EFFECTS;
 	sel_font.lpLogFont = &fontstyle;
 	sel_font.rgbColors = color;
-	ChooseFont(&sel_font);
+	changed = ChooseFont(&sel_font);
 	color = sel_font.rgbColors;
+	return changed;
 }
 
 void MainWindow::OnCommand(int id) {
 	switch(id){
 	case ID_FONT:
-		GetFont(*this, font_style, text_color);
+		if(GetFont(*this, font_style, text_color))
+			InvalidateRect(*this, NULL, true);
 		break;
 	case ID_TEXT: {
 		MyDialog dialog;
 		dialog.text = window_text;
-		if (dialog.DoModal(0, *this) == IDOK)
+		if (dialog.DoModal(0, *this) == IDOK) {
 			window_text = dialog.text;
+			InvalidateRect(*this, NULL, true);
+		}
 		break; }
 	case ID_EXIT:
 		DestroyWindow(*this);
 		break;
 	}
-	InvalidateRect(*this, NULL, true);
 }
 
 void MainWindow::OnDestroy(){

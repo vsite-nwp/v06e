@@ -20,7 +20,7 @@ public:
 		HDC hdc = GetDC(0);
 		font_style.lfHeight = -20 * GetDeviceCaps(hdc, LOGPIXELSY) / 72;
 		_tcscpy(font_style.lfFaceName, _T("Bahnschrift"));
-		font_style.lfCharSet = DEFAULT_CHARSET;
+		font_style.lfCharSet = EASTEUROPE_CHARSET;
 		text_color = RGB(0, 0, 0);
 		ReleaseDC(0, hdc);
 	}
