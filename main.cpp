@@ -49,10 +49,16 @@ bool GetFont(HWND parent, LOGFONT &fontstyle, COLORREF &color) {
 }
 
 void MainWindow::OnCommand(int id) {
+	LOGFONT f_style = font_style;
+	COLORREF t_color = text_color;
 	switch(id){
 	case ID_FONT:
 		if(GetFont(*this, font_style, text_color))
 			InvalidateRect(*this, NULL, true);
+		else {
+			font_style = f_style;
+			text_color = t_color;
+		}
 		break;
 	case ID_TEXT: {
 		MyDialog dialog;
