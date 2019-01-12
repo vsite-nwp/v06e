@@ -63,7 +63,7 @@ void MainWindow::OnPaint(HDC hdc) {
 MainWindow::MainWindow() : color(RGB(0, 0, 0))
 {
 	::ZeroMemory(&lf,sizeof(lf));
-	//_tcscpy(lf.lfFaceName,_T("Arial"));
+	_tcscpy(lf.lfFaceName,_T("Arial"));
 
 	HDC hdc = GetDC(0);
 	lf.lfHeight = -16 * GetDeviceCaps(hdc, LOGPIXELSY) / 72;
@@ -72,8 +72,7 @@ MainWindow::MainWindow() : color(RGB(0, 0, 0))
 
 }
 void MainWindow::OnCommand(int id) {
-
-	MyDialog dlg;
+	
 	switch(id){
 	case ID_FONT:
 		GetFont(*this, lf,color);
@@ -81,12 +80,15 @@ void MainWindow::OnCommand(int id) {
 		break;
 
 	case ID_TEXT:
+	{
+		MyDialog dlg;
 		dlg.text = str;
 		if (dlg.DoModal(NULL, *this) == IDOK) {
 			this->str = dlg.text;
 		}
-		InvalidateRect(*this, NULL, true);	
+		InvalidateRect(*this, NULL, true);
 		break;
+	}
 	case ID_EXIT:
 		DestroyWindow(*this);
 		break;
