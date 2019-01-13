@@ -75,8 +75,14 @@ void MainWindow::OnCommand(int id) {
 	
 	switch(id){
 	case ID_FONT:
-		GetFont(*this, lf,color);
-		InvalidateRect(*this, NULL, true);
+		if(GetFont(*this, lf,color)){
+			InvalidateRect(*this, NULL, true);
+		}
+		else
+		{
+			this->lf = lf;
+			this->color = color;
+		}
 		break;
 
 	case ID_TEXT:
