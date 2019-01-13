@@ -72,16 +72,17 @@ MainWindow::MainWindow() : color(RGB(0, 0, 0))
 
 }
 void MainWindow::OnCommand(int id) {
-	
+	LOGFONT font = lf;
+	COLORREF colo = color;
 	switch(id){
 	case ID_FONT:
-		if(GetFont(*this, lf,color)){
+
+		if (GetFont(*this, lf, color)) 
 			InvalidateRect(*this, NULL, true);
-		}
 		else
 		{
-			this->lf = lf;
-			this->color = color;
+			lf = font;
+			color = colo;
 		}
 		break;
 
