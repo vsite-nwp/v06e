@@ -14,21 +14,7 @@ bool MyDialog::OnOK(){
 	text = GetText(IDC_EDIT1);
 	return true;
 }
-bool GetFont(HWND parent, LOGFONT &lf, COLORREF &color) {
-	CHOOSEFONT cf;
-	ZeroMemory(&cf, sizeof cf);
-	cf.lStructSize = sizeof cf;
-	cf.Flags = CF_INITTOLOGFONTSTRUCT| CF_SCREENFONTS | CF_EFFECTS;
-	cf.hwndOwner = parent;
-	cf.lpLogFont = &lf;
-	cf.rgbColors = color;
-	if (ChooseFont(&cf))
-	{
-		color = cf.rgbColors;
-		return true;
-	}
-	return false;
-}
+
 
 
 void MainWindow::OnPaint(HDC hdc) {
@@ -36,47 +22,57 @@ void MainWindow::OnPaint(HDC hdc) {
 		return;
 	RECT rc;
 	GetClientRect(*this, &rc);
-	int dx = rc.right / 9;
-	int dy = rc.bottom / str.size();
+	int rt = rc.right / 9;
+	int btm = rc.bottom / str.size();
 	SetTextColor(hdc, color);
 	HFONT hf = (HFONT)SelectObject(hdc, CreateFontIndirect(&lf));
 	HBRUSH hb = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	for (int i = 0; i < str.size(); i++) {
 		for (int j = 0; j < 8; j++) {
-			rc = { j*dx,i*dy,(j + 1)*dx,(i + 1)*dy };
+			rc = { j*rt,i*btm,(j + 1)*rt,(i + 1)*btm };
 			bool white = str[i] & (1 << (7 - j));
 			if (!white)
 				FillRect(hdc, &rc, hb);
 		}
-		rc = { 8 * dx, i*dy, 9 * dx, (i + 1)*dy };
+		rc = { 8 * rt, i*btm, 9 * rt, (i + 1)*btm };
 		DrawText(hdc, &str[i], 1, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 	}
 	DeleteObject(SelectObject(hdc, hf));
 }
+bool GetFont(HWND parent, LOGFONT &lf, COLORREF &color) {
+	CHOOSEFONT cf;
+	ZeroMemory(&cf, sizeof cf);
+	cf.lStructSize = sizeof cf;
+	cf.Flags = CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS | CF_EFFECTS;
+	cf.hwndOwner = parent;
+	cf.lpLogFont = &lf;
+	cf.rgbColors = color;
+	if (ChooseFont(&cf)){
+		color = cf.rgbColors;
+		return true;
+	}
+	return false;
+}
 
 void MainWindow::OnCommand(int id) {
-	MyDialog dlg;
+	MyDialog dijalog;
 	LOGFONT font = lf;
 	COLORREF c = color;
 	switch (id) {
-	case ID_FONT:
-		if (GetFont(*this, lf, color))
-			InvalidateRect(*this, NULL, true);
-		else
-		{
-			lf = font;color = c;
-		}
-		break;
-
 	case ID_TEXT:
 	{
-		MyDialog dlg;
-		dlg.text = str;
-		if (dlg.DoModal(NULL, *this) == IDOK)
-			this->str = dlg.text;
+		MyDialog dijalog;
 		InvalidateRect(*this, NULL, true);
+		if (dijalog.DoModal(NULL, *this) == IDOK)
+			this->str = dijalog.text;
+		dijalog.text = str;
 		break;
 	}
+	case ID_FONT:
+		lf = font; color = c;
+		if (GetFont(*this, lf, color))
+			InvalidateRect(*this, NULL, true);
+		break;
 	case ID_EXIT:
 		DestroyWindow(*this);
 	}
