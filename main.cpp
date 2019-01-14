@@ -55,24 +55,27 @@ bool GetFont(HWND parent, LOGFONT &lf, COLORREF &color) {
 }
 
 void MainWindow::OnCommand(int id) {
-	MyDialog dijalog;
-	LOGFONT font = lf;
-	COLORREF c = color;
 	switch (id) {
 	case ID_TEXT:
 	{
 		MyDialog dijalog;
-		InvalidateRect(*this, NULL, true);
-		if (dijalog.DoModal(NULL, *this) == IDOK)
-			this->str = dijalog.text;
 		dijalog.text = str;
+		if (dijalog.DoModal(NULL, *this) == IDOK) {
+			str = dijalog.text;
+			InvalidateRect(*this, NULL, true);
+		}
 		break;
 	}
 	case ID_FONT:
-		lf = font; color = c;
-		if (GetFont(*this, lf, color))
+	{
+		LOGFONT font = lf;
+		COLORREF c = color;
+		if (GetFont(*this, font, c)) {
+			lf = font; color = c;
 			InvalidateRect(*this, NULL, true);
+		}
 		break;
+	}
 	case ID_EXIT:
 		DestroyWindow(*this);
 	}
