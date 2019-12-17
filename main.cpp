@@ -21,6 +21,7 @@ void MainWindow::OnPaint(HDC hdc) {
 	int x = rectangle.right / 9;
 	int y = rectangle.bottom / windowText.size();
 	HFONT previous_font = (HFONT)SelectObject(hdc, CreateFontIndirect(&log));
+	HBRUSH brush_color = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	SetTextColor(hdc, color);
 	int i = 0;
 	while (i < windowText.size()) {
@@ -28,7 +29,7 @@ void MainWindow::OnPaint(HDC hdc) {
 		while (j < 8) {
 			rectangle = { j*x, i*y, (j+1)*x, (i+1)*y };
 			if ((windowText[i] & (1 << (7 - j))) == 0) {
-				FillRect(hdc, &rectangle, (HBRUSH)GetStockObject(BLACK_BRUSH));
+				FillRect(hdc, &rectangle, brush_color);
 			}
 			++j;
 		}
@@ -37,6 +38,7 @@ void MainWindow::OnPaint(HDC hdc) {
 		++i;
 	}
 	DeleteObject((HFONT)SelectObject(hdc, previous_font));
+	DeleteObject((HBRUSH)SelectObject(hdc, brush_color));
 }
 
 void MainWindow::OnCommand(int id) {
@@ -44,6 +46,11 @@ void MainWindow::OnCommand(int id) {
 	case ID_FONT: {
 		LOGFONT lcopy = log;
 		COLORREF ccopy = color;
+		CHOOSEFONT font;
+		ZeroMemory(&font, sizeof font);
+		font.lStructSize = sizeof font;
+		font.Flags = CF_EFFECTS | CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS;
+		font.hwndOwner = *this;
 		font.lpLogFont = &lcopy;
 		font.rgbColors = ccopy;
 		if (ChooseFont(&font) == true) {
@@ -55,6 +62,7 @@ void MainWindow::OnCommand(int id) {
 	}
 	case ID_TEXT: {
 		MyDialog dlg;
+		dlg.text = windowText;
 		if (dlg.DoModal(NULL, *this) == IDOK) {
 			windowText = dlg.text;
 			InvalidateRect(*this, NULL, true);
