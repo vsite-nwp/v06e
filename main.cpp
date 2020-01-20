@@ -60,10 +60,13 @@ void MainWindow::OnPaint(HDC hdc) {
 
 void MainWindow::OnCommand(int id) {
 	MyDialog dlg;
+	LOGFONT font = lf;
+	COLORREF colour = color;
 	switch(id){
-	case ID_FONT:
-		GetFont(*this, lf, color);
-		InvalidateRect(*this, NULL, true);
+	case ID_FONT: 
+		if (GetFont(*this, lf, color))
+			InvalidateRect(*this, NULL, true);
+		else { lf = font; color = colour; }
 		break;
 	case ID_TEXT:
 		dlg.txt = str;
