@@ -31,6 +31,29 @@ bool GetFont(HWND parent, LOGFONT &lf, COLORREF &color) {
 }
 
 void MainWindow::OnPaint(HDC hdc) {
+	RECT rc;
+	GetClientRect(*this, &rc);
+
+	if (!str.size())
+		return;
+
+	double dx = rc.right / 9;
+	double dy = rc.bottom / str.size();
+
+	SetTextColor(hdc, color);
+	HFONT hf = (HFONT)SelectObject(hdc, CreateFontIndirect(&lf));
+
+	for (int i = 0; i < str.size(); i++) {
+		for (int j = 0; j < 8, j++) {
+			rc = { j*dx, i*dy, (j + 1)*dx, (i + 1)*dy };
+			bool white = str[i] & (1 << (7 - j));
+			if (!white)
+				FillRect(hdc, &rc, (HBRUSH)GetStockObject(BLACK_BRUSH));
+		}
+		rc = { 8 * dx, i*dy, 9 * dx, (i + 1)*dy };
+		DrawText(hdc, &str[i], 1, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	}
+	DeleteObject(SelectObject(hdc, hf));
 }
 
 void MainWindow::OnCommand(int id) {
@@ -40,6 +63,12 @@ void MainWindow::OnCommand(int id) {
 		InvalidateRect(*this, NULL, true);
 		break;
 	case ID_TEXT:
+		MyDialog dlg;
+		dlg.txt = str;
+		if (dlg.DoModal(NULL, *this) == IDOK) {
+			this->str = dlg.txt;
+		}
+		InvalidateRect(*this, NULL; true);
 		break;
 	case ID_EXIT:
 		DestroyWindow(*this);
