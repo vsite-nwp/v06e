@@ -37,14 +37,14 @@ void MainWindow::OnPaint(HDC hdc) {
 	if (!str.size())
 		return;
 
-	double dx = rc.right / 9;
-	double dy = rc.bottom / str.size();
+	long dx = rc.right / 9;
+	long dy = rc.bottom / str.size();
 
 	SetTextColor(hdc, color);
 	HFONT hf = (HFONT)SelectObject(hdc, CreateFontIndirect(&lf));
 
 	for (int i = 0; i < str.size(); i++) {
-		for (int j = 0; j < 8, j++) {
+		for (int j = 0; j < 8; j++) {
 			rc = { j*dx, i*dy, (j + 1)*dx, (i + 1)*dy };
 			bool white = str[i] & (1 << (7 - j));
 			if (!white)
@@ -56,19 +56,21 @@ void MainWindow::OnPaint(HDC hdc) {
 	DeleteObject(SelectObject(hdc, hf));
 }
 
+
+
 void MainWindow::OnCommand(int id) {
+	MyDialog dlg;
 	switch(id){
 	case ID_FONT:
 		GetFont(*this, lf, color);
 		InvalidateRect(*this, NULL, true);
 		break;
 	case ID_TEXT:
-		MyDialog dlg;
 		dlg.txt = str;
 		if (dlg.DoModal(NULL, *this) == IDOK) {
 			this->str = dlg.txt;
 		}
-		InvalidateRect(*this, NULL; true);
+		InvalidateRect(*this, NULL, true);
 		break;
 	case ID_EXIT:
 		DestroyWindow(*this);
