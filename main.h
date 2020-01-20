@@ -14,11 +14,10 @@ class MainWindow : public Window {
 	tstring str;
 	LOGFONT lf;
 	COLORREF color;
-	tstring text;
 public:
-	MainWindow() : text("Dinamo prvak") {
+	MainWindow() : str("Dinamo prvak") {
 		ZeroMemory(&lf, sizeof(lf));
-		_tcscpy(lf.lfFaceName, _T("Comic Sans"));
+		_tcscpy(lf.lfFaceName, _T("Times New Roman"));
 		HDC hdc = GetDC(0);
 		lf.lfHeight = -16 * GetDeviceCaps(hdc, LOGPIXELSY) / 72;
 		lf.lfCharSet = EASTEUROPE_CHARSET;
