@@ -18,6 +18,7 @@ bool MyDialog::OnOK(){
 void GetFont(HWND parent, LOGFONT &lf, COLORREF& color)
 {
 	CHOOSEFONT cf;
+	LOGFONT former_font = lf;
 	ZeroMemory(&cf, sizeof cf);
 	cf.lStructSize = sizeof cf;
 	cf.Flags = CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS | CF_EFFECTS;
@@ -26,6 +27,8 @@ void GetFont(HWND parent, LOGFONT &lf, COLORREF& color)
 	cf.rgbColors = color;
 	if (ChooseFont(&cf))
 		color = cf.rgbColors;
+	else
+		lf = former_font;
 }
 
 void MainWindow::OnPaint(HDC hdc) {
@@ -46,7 +49,7 @@ void MainWindow::OnPaint(HDC hdc) {
 		rc = { 8 * x, i * y, 9 * x, (i + 1) * y };
 		DrawText(hdc, &str[i], 1, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 	}
-	DeleteObject((HFONT)SelectObject(hdc, hFont));
+	//DeleteObject((HFONT)SelectObject(hdc, hFont));
 }
 
 void MainWindow::OnCommand(int id) {

@@ -18,14 +18,9 @@ public:
 	MainWindow()
 	{
 		HDC hdc = GetDC(0);
+		ZeroMemory(&lf, sizeof(lf));
 		lf.lfHeight = -18 * GetDeviceCaps(hdc, LOGPIXELSY) / 72;
-		lf.lfStrikeOut = false;
-		lf.lfUnderline = false;
-		lf.lfItalic = false;
 		lf.lfCharSet = EASTEUROPE_CHARSET;
-		lf.lfWeight = 400;
-		lf.lfOrientation = 0;
-		lf.lfEscapement = 0;
 		_tcscpy(lf.lfFaceName, _T("Arial"));
 		color = RGB(0, 0, 0);
 		ReleaseDC(0, hdc);
