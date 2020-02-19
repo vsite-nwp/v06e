@@ -3,15 +3,6 @@
 #include <vector>
 #include <bitset>
 #include<iostream>
-CHOOSEFONT cf;
-LOGFONT logi;
-HWND mainwin;
-tstring str;
-int width = 0;
-int height = 0;
-
-std::vector <std::string> vektor;
-MyDialog* md = new MyDialog();
 int MyDialog::IDD(){
 	return IDD_DIALOG;
 }
@@ -21,48 +12,47 @@ bool MyDialog::OnInitDialog(){
 }
 
 bool MyDialog::OnOK(){
-	str=md->GetText(IDC_EDIT1);
-	vektor.clear();
+	str=this->GetText(IDC_EDIT1);
+	clearaj();
 	for (int i = 0; i < str.length();++i) {
-		vektor.push_back((std::bitset<8>(str[i])).to_string());
+		pushaj((std::bitset<8>(str[i])).to_string());
 	}
+	
 	InvalidateRect(mainwin, 0, true);
 	UpdateWindow(mainwin);
 	return true;
 }
-
-
 void MainWindow::OnPaint(HDC hdc) {
-	if (&logi != nullptr) {
+	RECT r;
+	HRGN region;
+	GetClientRect(*this, &r);
+	int width = r.right - r.left;
+	int height = r.bottom - r.top;
+	kopiraj();
+	if (flag) {
 		SelectFont(hdc, CreateFontIndirect(&logi));
 		SetTextColor(hdc, cf.rgbColors);
 	}
-	RECT r;
-	HRGN region;
-	GetClientRect(*this,&r);
-	width = r.right-r.left;
-	height = r.bottom - r.top;
+	else {
+		SelectFont(hdc, CreateFontA(15, 15, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, "Default Font"));
+		SetTextColor(hdc, RGB(0, 0, 0));
+	}
 	for (int i = 0; i < str.length(); ++i) {
 		for (int j = 0; j < 9; ++j) {
 			region=CreateRectRgn((int)j*width / 9,(int) i*height / str.length(),(int) (j + 1)*width / 9,(int) (i + 1)*height / str.length());
 			if (j < 8) {
-				if (vektor[i][j] == '1') {
+				if (vratiVrijednost(i,j) == '1') {
 					FillRgn(hdc, region, CreateSolidBrush(RGB(0, 0, 0)));
 				}
-			
 }
 			else {
-				
 				TextOut(hdc,(int) (((double)j+0.5)*width / 9),(int)(((double)i+0.5)*height / str.length()),&str[i] , 1);
 			}
 				
 			}
-			
+		
 		}
 	}
-	
-
-
 void MainWindow::OnCommand(int id) {
 	switch(id){
 	case ID_FONT:
@@ -79,9 +69,10 @@ void MainWindow::OnCommand(int id) {
 		cf.nFontType = SCREEN_FONTTYPE;
 		cf.nSizeMin = 24;
 		ChooseFont(&cf);
-		
+		flag = true;
 		InvalidateRect(mainwin, 0, true);
 		UpdateWindow(mainwin);
+		
 		break;
 	case ID_TEXT:
 		md->DoModal(0,*this);
@@ -101,8 +92,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hp, LPSTR cmdLine, int nShow)
 	
 	Application app;
 	MainWindow wnd;
-	mainwin = wnd;
 	wnd.Create(NULL, WS_OVERLAPPEDWINDOW | WS_VISIBLE, _T("NWP"),
 	(int)LoadMenu(hInstance, MAKEINTRESOURCE(IDM_MAIN)));
+	wnd.init(wnd);
 	return app.Run();
 }
