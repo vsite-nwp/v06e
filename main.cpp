@@ -23,9 +23,10 @@ bool get_font(HWND parent, LOGFONT& log_font, COLORREF& color)
 	ZeroMemory(&choose_font, sizeof(choose_font));
 
 	choose_font.lStructSize = sizeof(choose_font);
+	choose_font.hwndOwner = parent;
 	choose_font.lpLogFont = &log_font;
 	choose_font.rgbColors = color;
-	choose_font.hwndOwner = parent;
+	choose_font.Flags = CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS | CF_EFFECTS; //show selected font, strikeout, underline, and text color 
 
 	if (ChooseFont(&choose_font))
 	{
@@ -33,6 +34,8 @@ bool get_font(HWND parent, LOGFONT& log_font, COLORREF& color)
 
 		return true;
 	}
+
+	return false;
 }
 
 void main_window::on_paint(HDC hdc)
@@ -42,7 +45,7 @@ void main_window::on_paint(HDC hdc)
 
 	int width = rect.right / 9;
 
-	if (!txt2.size()) // baca unhandled exception ako se ne provjeri
+	if (txt2.empty()) //unhandled exception if not checked 
 	{
 		return;
 	}
@@ -66,6 +69,7 @@ void main_window::on_paint(HDC hdc)
 		rect = { 8 * width, i * height, 9 * width, (i + 1) * height };
 		DrawText(hdc, &txt2[i], 1, &rect, DT_VCENTER | DT_CENTER | DT_SINGLELINE);
 	}
+	DeleteObject((HFONT)SelectObject(hdc, h_font)); //delete created font
 }
 
 void main_window::on_command(int id)

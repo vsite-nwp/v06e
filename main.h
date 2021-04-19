@@ -28,5 +28,7 @@ public:
 		ZeroMemory(&log_font, sizeof(log_font));
 		log_font.lfHeight = -18 * GetDeviceCaps(hdc, LOGPIXELSY) / 72;
 		ReleaseDC(0, hdc);
+		strcpy(log_font.lfFaceName, _T("Arial")); //default font name
+		color = RGB(0, 0, 0); //default font color (black)
 	}
 };
