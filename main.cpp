@@ -77,7 +77,10 @@ void main_window::on_command(int id)
 	switch (id)
 	{
 	case ID_FONT:
-		get_font(*this, log_font, color);
+		if (get_font(*this, log_font, color)) 
+		{
+			InvalidateRect(*this, NULL, true); //redraw window when font is changed
+		}
 		break;
 	case ID_TEXT:
 	{
