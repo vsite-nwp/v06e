@@ -54,6 +54,7 @@ void main_window::on_paint(HDC hdc)
 
 	HFONT h_font = (HFONT)SelectObject(hdc, CreateFontIndirect(&log_font));
 	SetTextColor(hdc, color);
+	HBRUSH h_brush = (HBRUSH)GetStockObject(BLACK_BRUSH);
 
 	for (int i = 0; i < txt2.size(); i++)
 	{
@@ -63,7 +64,7 @@ void main_window::on_paint(HDC hdc)
 
 			if ((txt2[i] & (1 << (7 - j))) == 0)
 			{
-				FillRect(hdc, &rect, (HBRUSH)GetStockObject(BLACK_BRUSH));
+				FillRect(hdc, &rect, h_brush);
 			}
 		}
 		rect = { 8 * width, i * height, 9 * width, (i + 1) * height };
