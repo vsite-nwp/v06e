@@ -2,36 +2,32 @@
 #include "main.h"
 #include "rc.h"
 
-int main_dialog::idd() const
-{
+int main_dialog::idd() const {
 	return IDD_DIALOG;
 }
-bool main_dialog::on_init_dialog()
-{
-	set_text(IDC_EDIT1, txt);
+bool main_dialog::on_init_dialog() {
+	set_text(IDC_EDIT1, tstring);
 	return true;
 }
-bool main_dialog::on_ok()
-{
-	txt = get_text(IDC_EDIT1);
+bool main_dialog::on_ok() {
+	tstring = get_text(IDC_EDIT1);
 	return true;
 }
-
-bool get_font(HWND parent, LOGFONT& log_font, COLORREF& color)
+bool getFont(HWND hwnd, LOGFONT& logfnt, COLORREF& clr)
 {
-	CHOOSEFONT choose_font;
+	CHOOSEFONT fnt;
+	ZeroMemory(&fnt, sizeof(fnt));
+	fnt.lStructSize = sizeof(fnt);
 
-	ZeroMemory(&choose_font, sizeof(choose_font));
+	fnt.hwndOwner = hwnd;
+	fnt.rgbColors = clr;
+	fnt.lpLogFont = &logfnt;
 
-	choose_font.lStructSize = sizeof(choose_font);
-	choose_font.hwndOwner = parent;
-	choose_font.lpLogFont = &log_font;
-	choose_font.rgbColors = color;
-	choose_font.Flags = CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS | CF_EFFECTS; //show selected font, strikeout, underline, and text color 
+	fnt.Flags = CF_SCREENFONTS | CF_INITTOLOGFONTSTRUCT | CF_EFFECTS;
 
-	if (ChooseFont(&choose_font))
+	if (ChooseFont(&fnt))
 	{
-		color = choose_font.rgbColors;
+		clr = fnt.rgbColors;
 
 		return true;
 	}
@@ -39,62 +35,58 @@ bool get_font(HWND parent, LOGFONT& log_font, COLORREF& color)
 	return false;
 }
 
-void main_window::on_paint(HDC hdc)
-{
-	RECT rect;
-	GetClientRect(*this, &rect);
 
-	int width = rect.right / 9;
-
-	if (txt2.empty()) //unhandled exception if not checked 
-	{
+void main_window::on_paint(HDC hdc) {
+	if (tstring2.size() < 1)
 		return;
-	}
 
-	int height = rect.bottom / txt2.size();
+	RECT rct;
+	HFONT h_font = (HFONT)SelectObject(hdc, CreateFontIndirect(&log));
+	GetClientRect(*this, &rct);
 
-	HFONT h_font = (HFONT)SelectObject(hdc, CreateFontIndirect(&log_font));
-	SetTextColor(hdc, color);
-	HBRUSH h_brush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+	int visina = rct.bottom / tstring2.size();
+	int sirina = rct.right / 9;
 
-	for (int i = 0; i < txt2.size(); i++)
-	{
-		for (int j = 0; j < 8; j++)
-		{
-			rect = { j * width, i * height, (j + 1) * width, (i + 1) * height };
 
-			if ((txt2[i] & (1 << (7 - j))) == 0)
-			{
-				FillRect(hdc, &rect, h_brush);
-			}
+	SetTextColor(hdc, colorRef);
+
+	HBRUSH hbrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+	for (int i = 0; i < tstring2.size(); i++) {
+		for (int j = 0; j < 8; j++) {
+			rct = { sirina * j ,visina * i , sirina * (j + 1)  ,visina * (i + 1) };
+
+			bool boja = tstring2[i] & (1 << (7 - j));
+			if (!boja)
+				FillRect(hdc, &rct, hbrush);
+
 		}
-		rect = { 8 * width, i * height, 9 * width, (i + 1) * height };
-		DrawText(hdc, &txt2[i], 1, &rect, DT_VCENTER | DT_CENTER | DT_SINGLELINE);
+		rct = {
+			8 * sirina, i * visina, 9 * sirina, (i + 1) * visina
+		};
+		DrawText(hdc, &tstring2[i], 1, &rct, DT_VCENTER | DT_CENTER);
 	}
-	DeleteObject((HFONT)SelectObject(hdc, h_font)); //delete created font
+	DeleteObject((HFONT)SelectObject(hdc, h_font));
 }
 
-void main_window::on_command(int id)
-{
-	switch (id)
-	{
+void main_window::on_command(int id) {
+	switch (id) {
 	case ID_FONT:
-		if (get_font(*this, log_font, color))
-		{
-			InvalidateRect(*this, NULL, true); //redraw window when font is changed
+		if (getFont(*this, log, colorRef)) {
+			InvalidateRect(*this, NULL, true);
 		}
 		break;
 	case ID_TEXT:
 	{
-		main_dialog dlg;
-		dlg.txt = txt2;
+		main_dialog dialog;
+		dialog.tstring = tstring2;
 
-		if (dlg.do_modal(0, *this) == IDOK)
-		{
-			txt2 = dlg.txt;
+		if (dialog.do_modal(0) != IDOK) {
+			return;
 		}
-
-		InvalidateRect(*this, NULL, true);
+		else {
+			tstring2 = dialog.tstring;
+			InvalidateRect(*this, NULL, true);
+		}
 		break;
 	}
 	case ID_EXIT:
@@ -103,12 +95,24 @@ void main_window::on_command(int id)
 	}
 }
 
+
+main_window::main_window() : colorRef(RGB(0, 0, 0)) {
+	::ZeroMemory(&log, sizeof(log));
+	_tcscpy(log.lfFaceName, _T("Ascii"));
+	HDC hdc = GetDC(0);
+
+	log.lfHeight = -16 * GetDeviceCaps(hdc, LOGPIXELSY) / 72;
+	log.lfCharSet = EASTEUROPE_CHARSET;
+
+	ReleaseDC(0, hdc);
+}
+
+
 void main_window::on_destroy() {
 	::PostQuitMessage(0);
 }
 
-int WINAPI WinMain(HINSTANCE instance, HINSTANCE, LPSTR, int)
-{
+int WINAPI WinMain(HINSTANCE instance, HINSTANCE, LPSTR, int) {
 	vsite::nwp::application app;
 	main_window wnd;
 	wnd.create(0, WS_OVERLAPPEDWINDOW | WS_VISIBLE, _T("NWP"), (int)LoadMenu(instance, MAKEINTRESOURCE(IDM_MAIN)));
