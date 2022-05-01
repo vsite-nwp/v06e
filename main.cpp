@@ -26,12 +26,7 @@ bool main_dialog::on_ok() {
 	return true;
 }
 
-main_window::main_window() {
-	_tcscpy_s(lf.lfFaceName, _T("Arial"));
-	HDC hdc = ::GetDC(0);
-	lf.lfHeight = -16 * ::GetDeviceCaps(hdc, LOGPIXELSY) / 72;
-	::ReleaseDC(0, hdc);
-}
+
 
 void main_window::on_paint(HDC hdc) {
 	if (s.length()==0)
@@ -59,6 +54,7 @@ void main_window::on_paint(HDC hdc) {
 void main_window::on_command(int id) {
 	switch(id){
 		case ID_FONT:
+			get_font(*this, lf, col);
 			break;
 		case ID_TEXT: 
 		{
