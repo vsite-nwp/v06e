@@ -1,6 +1,19 @@
 #include "main.h"
 #include "rc.h"
 
+namespace {
+	bool get_font(HWND hw, LOGFONT& f, COLORREF& col) {
+		LOGFONT lf{ f };
+		CHOOSEFONT cf{ sizeof cf, hw, 0, &lf, 0, CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS | CF_EFFECTS, col };
+		if (::ChooseFont(&cf)) {
+			f = lf;
+			col = cf.rgbColors;
+			return true;
+		}
+		return false;
+	}
+}
+
 int main_dialog::idd() const {
 	return IDD_DIALOG;
 }
@@ -13,6 +26,13 @@ bool main_dialog::on_ok() {
 	return true;
 }
 
+main_window::main_window() {
+	_tcscpy_s(lf.lfFaceName, _T("Arial"));
+	HDC hdc = ::GetDC(0);
+	lf.lfHeight = -16 * ::GetDeviceCaps(hdc, LOGPIXELSY) / 72;
+	::ReleaseDC(0, hdc);
+}
+
 void main_window::on_paint(HDC hdc) {
 	if (s.length()==0)
 		return;
@@ -20,6 +40,8 @@ void main_window::on_paint(HDC hdc) {
 	::GetClientRect(*this, &rect);
 	const double x = rect.right / 9.;
 	const double y = rect.bottom / static_cast<double>(s.length());
+	HFONT prev_font = (HFONT)::SelectObject(hdc, ::CreateFontIndirect(&lf));
+	::SetTextColor(hdc, col);
 	for (int i = 0; i < s.length(); i++) {
 		for (int k = 0; k < 8;k++) {
 			const RECT r = { x * k, y * i, x * (k + 1), y * (i + 1) };
@@ -31,7 +53,7 @@ void main_window::on_paint(HDC hdc) {
 		::DrawText(hdc, &s[i], 1, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 		
 	}
-	
+	::DeleteObject(::SelectObject(hdc, prev_font));
 }
 
 void main_window::on_command(int id) {
