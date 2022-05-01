@@ -29,8 +29,7 @@ bool main_dialog::on_ok() {
 
 
 void main_window::on_paint(HDC hdc) {
-	if (s.length()==0)
-		return;
+	if (!s.length()) return;
 	RECT rect;
 	::GetClientRect(*this, &rect);
 	const double x = rect.right / 9.;
@@ -69,6 +68,7 @@ void main_window::on_command(int id) {
 			::DestroyWindow(*this);
 			break;
 	}
+	InvalidateRect(*this, NULL, true);
 }
 
 void main_window::on_destroy(){
