@@ -16,31 +16,26 @@ bool main_dialog::on_ok() {
 }
 
 main_window::main_window() {
+	ZeroMemory(&lf, sizeof(lf));
 	_tcscpy_s(lf.lfFaceName, _T("Arial"));
 	HDC hdc = ::GetDC(0);
-	ZeroMemory(&lf, sizeof(lf));
+	
 	lf.lfHeight = -16 * ::GetDeviceCaps(hdc, LOGPIXELSY) / 72;
 	cr = RGB(0, 0, 0);
 	::ReleaseDC(0, hdc);
 }
 
 bool get_font(HWND hw, LOGFONT& logf, COLORREF& cr) {
-	LOGFONT lf = { logf };
-	CHOOSEFONT cf;
-	ZeroMemory(&cf, sizeof cf);
-	cf.lStructSize = sizeof cf;
-	cf.Flags = CF_INITTOLOGFONTSTRUCT
-		| CF_SCREENFONTS | CF_EFFECTS;
-	cf.lpLogFont = &lf;
+	LOGFONT lf{ logf };
+	CHOOSEFONT cf{ sizeof cf, hw, 0, &lf, 0, CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS | CF_EFFECTS, cr };
 	if (ChooseFont(&cf)) {
 		logf = lf;
-		CreateFontIndirect(&lf);
 		cr = cf.rgbColors;
 		return true;
 	}
 	return false;
-
 }
+
 
 void main_window::on_paint(HDC hdc) {
 	RECT r;
