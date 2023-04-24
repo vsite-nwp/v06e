@@ -1,6 +1,28 @@
-#include "main.h"
+﻿#include "main.h"
 #include "rc.h"
 #include <bitset>
+
+class font {
+	HFONT h;
+public:
+	font(const LOGFONT& lf) {
+		h = ::CreateFontIndirect(&lf);
+	}
+	font(const TCHAR* name, int height, bool bold = false, bool italic = false, int angle = 0, bool underline = false) : h(0) {
+		h = ::CreateFont(height, 0, angle * 10, 0, bold ? FW_BOLD : FW_NORMAL, italic, underline, 0, 0, 0, 0, 0, 0, name);
+	}
+	~font() { if (h) ::DeleteObject(h); }
+	operator HFONT() { return h; }
+};
+
+class sel_obj {
+	HDC hdc;
+	HGDIOBJ hOld;
+public:
+	sel_obj(HDC hdc, HGDIOBJ hObj) :
+		hdc(hdc), hOld(::SelectObject(hdc, hObj)) { }
+	~sel_obj() { ::SelectObject(hdc, hOld); }
+};
 
 int main_dialog::idd() const {
 	return IDD_DIALOG;
@@ -10,6 +32,15 @@ bool main_dialog::on_init_dialog() {
 }
 bool main_dialog::on_ok() {
 	return true;
+}
+
+main_window::main_window()
+{
+	HDC hdc = GetDC(NULL);
+	int h = -16 * GetDeviceCaps(hdc, LOGPIXELSY) / 72;
+	_tcscpy_s(lf.lfFaceName, _T("Arial"));
+	lf.lfHeight = h;
+	ReleaseDC(NULL, hdc);
 }
 
 void main_window::on_paint(HDC hdc) 
@@ -22,23 +53,20 @@ void main_window::on_paint(HDC hdc)
 	SelectObject(hdc, GetStockObject(DC_BRUSH));
 
 	RECT r;
+	POINT letter_position;
 	GetClientRect(*this, &r);
 
 	int width = r.right;
 	int height = r.bottom;
 	int size = min(width / 8, height / 8);
 
-	HFONT hFont = CreateFont(
-		size, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
-		ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-		DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, _T("Arial"));
 
-	HFONT hOldFont = (HFONT)SelectObject(hdc, hFont);
+	tstring str = _T("012345");
 
-	for (int i = 0; i < 6; ++i) 
+	for (int i = 0; i < str.size(); ++i) 
 	{
-		std::bitset<8> binary(i);
-		TCHAR ch = static_cast<TCHAR>(i);
+		std::bitset<8> binary(str[i]);
+		TCHAR ch = static_cast<TCHAR>(str[i]);
 
 		for (int j = 7; j >= 0; --j) 
 		{
@@ -54,8 +82,11 @@ void main_window::on_paint(HDC hdc)
 			FillRect(hdc, &r, hBrush);
 		}
 
-		TCHAR str[2] = { ch, '\0' };
-		TextOut(hdc, 9 * size, i * size, str, 1);
+		letter_position.x = size * 8 + size / 2;
+		letter_position.y = size * i + size / 2;
+
+		
+		draw_letter(hdc, r, letter_position, &ch);
 	}
 
 	DeleteObject(hBlackBrush);
@@ -65,6 +96,7 @@ void main_window::on_paint(HDC hdc)
 void main_window::on_command(int id) {
 	switch(id){
 		case ID_FONT:
+			get_font(*this, lf);
 			break;
 		case ID_TEXT:
 			break;
@@ -72,6 +104,27 @@ void main_window::on_command(int id) {
 			::DestroyWindow(*this);
 			break;
 	}
+
+	::InvalidateRect(*this, 0, true);
+}
+
+void main_window::get_font(HWND parent, LOGFONT& lf)
+{
+	CHOOSEFONT cf{ sizeof CHOOSEFONT };
+	cf.Flags = CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS | CF_EFFECTS;
+	cf.hwndOwner = parent;
+	cf.lpLogFont = &lf;
+	::ChooseFont(&cf);
+}
+
+void main_window::draw_letter(HDC hdc, RECT rc, POINT position, TCHAR* text)
+{
+	::SetTextColor(hdc, RGB(0, 0, 0));
+	::SetBkColor(hdc, RGB(255, 255, 255));
+	font f(lf);
+	sel_obj sf(hdc, f);
+
+	::TextOut(hdc, position.x, position.y, text, 1);
 }
 
 void main_window::on_destroy(){

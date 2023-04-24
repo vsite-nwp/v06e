@@ -1,5 +1,6 @@
 #include "nwpwin.h"
 #include "nwpdlg.h"
+#include <vector>
 
 class main_dialog : public vsite::nwp::dialog {
 protected:
@@ -9,8 +10,19 @@ protected:
 };
 
 class main_window : public vsite::nwp::window {
+public:
+	main_window();
 protected:
 	void on_paint(HDC hdc) override;
 	void on_command(int id) override;
 	void on_destroy() override;
+
+private:
+	LOGFONT lf{};
+	std::vector<POINT> v;
+	tstring s;
+
+	void get_font(HWND parent, LOGFONT& lf);
+	void draw_letter(HDC hdc, RECT rc,POINT position, TCHAR* text);
+
 };
