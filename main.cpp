@@ -28,9 +28,11 @@ int main_dialog::idd() const {
 	return IDD_DIALOG;
 }
 bool main_dialog::on_init_dialog() {
+	set_text(IDC_EDIT1, str);
 	return true;
 }
 bool main_dialog::on_ok() {
+	str = get_text(IDC_EDIT1);
 	return true;
 }
 
@@ -58,32 +60,31 @@ void main_window::on_paint(HDC hdc)
 
 	int width = r.right;
 	int height = r.bottom;
-	int size = min(width / 8, height / 8);
 
+	int cell_width = int(r.right / 9);
+	int cell_height = int(r.bottom / s.length());
 
-	tstring str = _T("012345");
-
-	for (int i = 0; i < str.size(); ++i) 
+	for (int i = 0; i < s.size(); ++i) 
 	{
-		std::bitset<8> binary(str[i]);
-		TCHAR ch = static_cast<TCHAR>(str[i]);
+		std::bitset<8> binary(s[i]);
+		TCHAR ch = static_cast<TCHAR>(s[i]);
 
 		for (int j = 7; j >= 0; --j) 
 		{
 			HBRUSH hBrush = binary[j] ? hWhiteBrush : hBlackBrush;
 			int bitIndex = 7 - j;
 			RECT r = { 
-				bitIndex* size,
-				i * size, 
-				(bitIndex + 1) * size,
-				(i + 1) * size 
+				bitIndex * cell_width,
+				i * cell_height, 
+				(bitIndex + 1) * cell_width,
+				(i + 1) * cell_height 
 			};
 
 			FillRect(hdc, &r, hBrush);
 		}
 
-		letter_position.x = size * 8 + size / 2;
-		letter_position.y = size * i + size / 2;
+		letter_position.x = cell_width * 8 + cell_width / 2;
+		letter_position.y = cell_height * i + cell_height / 2;
 
 		
 		draw_letter(hdc, r, letter_position, &ch);
@@ -98,14 +99,29 @@ void main_window::on_command(int id) {
 		case ID_FONT:
 			get_font(*this, lf);
 			break;
+
 		case ID_TEXT:
+			get_text();
+			InvalidateRect(*this, NULL, true);
 			break;
+
 		case ID_EXIT:
 			::DestroyWindow(*this);
 			break;
 	}
 
 	::InvalidateRect(*this, 0, true);
+}
+
+void main_window::get_text()
+{
+	main_dialog dialog;
+	dialog.str = s;
+
+	if (dialog.do_modal(0, *this) == IDOK)
+	{
+		s = dialog.str;
+	}
 }
 
 void main_window::get_font(HWND parent, LOGFONT& lf)

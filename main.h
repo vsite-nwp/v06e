@@ -3,10 +3,14 @@
 #include <vector>
 
 class main_dialog : public vsite::nwp::dialog {
+public:
+	tstring str;
+
 protected:
 	int idd() const override;
 	bool on_init_dialog() override;
 	bool on_ok() override;
+
 };
 
 class main_window : public vsite::nwp::window {
@@ -20,9 +24,8 @@ protected:
 private:
 	LOGFONT lf{};
 	std::vector<POINT> v;
-	tstring s;
-
+	tstring s = _T("NWP-L06e");
 	void get_font(HWND parent, LOGFONT& lf);
+	void get_text();
 	void draw_letter(HDC hdc, RECT rc,POINT position, TCHAR* text);
-
 };
