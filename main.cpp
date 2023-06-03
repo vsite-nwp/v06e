@@ -47,12 +47,7 @@ main_window::main_window()
 
 void main_window::on_paint(HDC hdc) 
 {
-	PAINTSTRUCT ps;
-	HBRUSH hBlackBrush = CreateSolidBrush(RGB(0, 0, 0));
-	HBRUSH hWhiteBrush = CreateSolidBrush(RGB(255, 255, 255));
-
-	SelectObject(hdc, GetStockObject(NULL_PEN));
-	SelectObject(hdc, GetStockObject(DC_BRUSH));
+	if (s.length() == 0) return;
 
 	RECT r;
 	POINT letter_position;
@@ -64,14 +59,15 @@ void main_window::on_paint(HDC hdc)
 	int cell_width = int(r.right / 9);
 	int cell_height = int(r.bottom / s.length());
 
+	HFONT prev_font = (HFONT)::SelectObject(hdc, ::CreateFontIndirect(&lf));
+
 	for (int i = 0; i < s.size(); ++i) 
 	{
 		std::bitset<8> binary(s[i]);
-		TCHAR ch = static_cast<TCHAR>(s[i]);
+		TCHAR ch = s[i];
 
 		for (int j = 7; j >= 0; --j) 
 		{
-			HBRUSH hBrush = binary[j] ? hWhiteBrush : hBlackBrush;
 			int bitIndex = 7 - j;
 			RECT r = { 
 				bitIndex * cell_width,
@@ -80,18 +76,19 @@ void main_window::on_paint(HDC hdc)
 				(i + 1) * cell_height 
 			};
 
-			FillRect(hdc, &r, hBrush);
+			if (binary[j])
+			{
+				FillRect(hdc, &r, (HBRUSH)::GetStockObject(BLACK_BRUSH));
+			}
 		}
 
 		letter_position.x = cell_width * 8 + cell_width / 2;
 		letter_position.y = cell_height * i + cell_height / 2;
 
-		
 		draw_letter(hdc, r, letter_position, &ch);
 	}
 
-	DeleteObject(hBlackBrush);
-	DeleteObject(hWhiteBrush);
+	DeleteObject(::SelectObject(hdc, prev_font));
 }
 
 void main_window::on_command(int id) {
@@ -131,12 +128,12 @@ void main_window::get_font(HWND parent, LOGFONT& lf)
 	cf.hwndOwner = parent;
 	cf.lpLogFont = &lf;
 	::ChooseFont(&cf);
+	colour = cf.rgbColors;
 }
 
 void main_window::draw_letter(HDC hdc, RECT rc, POINT position, TCHAR* text)
 {
-	::SetTextColor(hdc, RGB(0, 0, 0));
-	::SetBkColor(hdc, RGB(255, 255, 255));
+	::SetTextColor(hdc, colour);
 	font f(lf);
 	sel_obj sf(hdc, f);
 

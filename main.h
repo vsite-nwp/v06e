@@ -25,6 +25,7 @@ private:
 	LOGFONT lf{};
 	std::vector<POINT> v;
 	tstring s = _T("NWP-L06e");
+	COLORREF colour = RGB(0, 0, 0);
 	void get_font(HWND parent, LOGFONT& lf);
 	void get_text();
 	void draw_letter(HDC hdc, RECT rc,POINT position, TCHAR* text);
