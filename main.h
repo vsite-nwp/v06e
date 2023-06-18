@@ -23,10 +23,8 @@ protected:
 
 private:
 	LOGFONT lf{};
-	std::vector<POINT> v;
 	tstring s = _T("NWP-L06e");
-	COLORREF colour = RGB(0, 0, 0);
-	void get_font(HWND parent, LOGFONT& lf);
+	COLORREF colour;
+	bool get_font(HWND parent, LOGFONT& lf, COLORREF& colour);
 	void get_text();
-	void draw_letter(HDC hdc, RECT rc,POINT position, TCHAR* text);
 };

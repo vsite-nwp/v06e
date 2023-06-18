@@ -40,8 +40,9 @@ main_window::main_window()
 {
 	HDC hdc = GetDC(NULL);
 	int h = -16 * GetDeviceCaps(hdc, LOGPIXELSY) / 72;
-	_tcscpy_s(lf.lfFaceName, _T("Arial"));
 	lf.lfHeight = h;
+	colour = RGB(0, 0, 0);
+	_tcscpy_s(lf.lfFaceName, _T("Arial"));
 	ReleaseDC(NULL, hdc);
 }
 
@@ -60,6 +61,7 @@ void main_window::on_paint(HDC hdc)
 	int cell_height = int(r.bottom / s.length());
 
 	HFONT prev_font = (HFONT)::SelectObject(hdc, ::CreateFontIndirect(&lf));
+	::SetTextColor(hdc, colour);
 
 	for (int i = 0; i < s.size(); ++i) 
 	{
@@ -76,7 +78,7 @@ void main_window::on_paint(HDC hdc)
 				(i + 1) * cell_height 
 			};
 
-			if (binary[j])
+			if (!binary[j])
 			{
 				FillRect(hdc, &r, (HBRUSH)::GetStockObject(BLACK_BRUSH));
 			}
@@ -85,7 +87,7 @@ void main_window::on_paint(HDC hdc)
 		letter_position.x = cell_width * 8 + cell_width / 2;
 		letter_position.y = cell_height * i + cell_height / 2;
 
-		draw_letter(hdc, r, letter_position, &ch);
+		::TextOut(hdc, letter_position.x, letter_position.y, &ch, 1);
 	}
 
 	DeleteObject(::SelectObject(hdc, prev_font));
@@ -94,7 +96,10 @@ void main_window::on_paint(HDC hdc)
 void main_window::on_command(int id) {
 	switch(id){
 		case ID_FONT:
-			get_font(*this, lf);
+			if (get_font(*this, lf, colour))
+			{
+				InvalidateRect(*this, NULL, true);
+			}
 			break;
 
 		case ID_TEXT:
@@ -121,23 +126,19 @@ void main_window::get_text()
 	}
 }
 
-void main_window::get_font(HWND parent, LOGFONT& lf)
+bool main_window::get_font(HWND parent, LOGFONT& lf, COLORREF& colour)
 {
 	CHOOSEFONT cf{ sizeof CHOOSEFONT };
-	cf.Flags = CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS | CF_EFFECTS;
 	cf.hwndOwner = parent;
 	cf.lpLogFont = &lf;
-	::ChooseFont(&cf);
+	cf.rgbColors = colour;
+	cf.Flags = CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS | CF_EFFECTS;
+
+	if (!ChooseFont(&cf))
+		return false;
+
 	colour = cf.rgbColors;
-}
-
-void main_window::draw_letter(HDC hdc, RECT rc, POINT position, TCHAR* text)
-{
-	::SetTextColor(hdc, colour);
-	font f(lf);
-	sel_obj sf(hdc, f);
-
-	::TextOut(hdc, position.x, position.y, text, 1);
+	return true;
 }
 
 void main_window::on_destroy(){
