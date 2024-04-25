@@ -14,13 +14,13 @@ bool main_dialog::on_ok() {
 }
 
 void main_window::on_paint(HDC hdc) {
+	if (!str.size())
+		return;
+
 	RECT r;
 	GetClientRect(*this, &r);
 	HFONT hf = CreateFontIndirect(&lf);
 	SelectObject(hdc, hf);
-
-	if (!str.size())
-		return;
 
 	int x = r.right / 9;
 	int y = r.bottom / str.size();
@@ -37,7 +37,7 @@ void main_window::on_paint(HDC hdc) {
 		RECT r = { 8 * x, i * y, 9 * x, (i + 1) * y };
 		::DrawText(hdc, &str[i], 1, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 	}
-	DeleteObject(SelectObject(hdc, hf));
+	DeleteObject(hf);
 }
 
 void main_window::on_command(int id) {
@@ -50,6 +50,8 @@ void main_window::on_command(int id) {
 		cf.lStructSize = sizeof cf;
 		cf.Flags = CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS | CF_EFFECTS;
 		cf.lpLogFont = &lf;
+		cf.hwndOwner = GetParent(0);
+		cf.rgbColors = color;
 		if (ChooseFont(&cf)) {
 			InvalidateRect(*this, 0, true);
 			color = cf.rgbColors;
