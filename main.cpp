@@ -13,6 +13,21 @@ bool main_dialog::on_ok() {
 	return true;
 }
 
+void GetFont(HWND parent, LOGFONT &lf, COLORREF &color) {
+	CHOOSEFONT cf;
+	LOGFONT ff = lf;
+	ZeroMemory(&cf, sizeof cf);
+	cf.lStructSize = sizeof cf;
+	cf.Flags = CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS | CF_EFFECTS;
+	cf.lpLogFont = &lf;
+	cf.hwndOwner = parent;
+	cf.rgbColors = color;
+	if (ChooseFont(&cf)) {
+		color = cf.rgbColors;
+	}
+	else { lf = ff; }
+}
+
 void main_window::on_paint(HDC hdc) {
 	if (!str.size())
 		return;
@@ -20,7 +35,7 @@ void main_window::on_paint(HDC hdc) {
 	RECT r;
 	GetClientRect(*this, &r);
 	HFONT hf = CreateFontIndirect(&lf);
-	SelectObject(hdc, hf);
+	HGDIOBJ holdf = SelectObject(hdc, hf);
 
 	int x = r.right / 9;
 	int y = r.bottom / str.size();
@@ -37,26 +52,16 @@ void main_window::on_paint(HDC hdc) {
 		RECT r = { 8 * x, i * y, 9 * x, (i + 1) * y };
 		::DrawText(hdc, &str[i], 1, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 	}
+	SelectObject(hdc, holdf);
 	DeleteObject(hf);
 }
 
 void main_window::on_command(int id) {
 	switch (id) {
 	case ID_FONT: {
-
-
-		CHOOSEFONT cf;
-		ZeroMemory(&cf, sizeof cf);
-		cf.lStructSize = sizeof cf;
-		cf.Flags = CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS | CF_EFFECTS;
-		cf.lpLogFont = &lf;
-		cf.hwndOwner = GetParent(0);
-		cf.rgbColors = color;
-		if (ChooseFont(&cf)) {
-			InvalidateRect(*this, 0, true);
-			color = cf.rgbColors;
+		GetFont(*this, lf, color);
+		InvalidateRect(*this, NULL, true);
 		}
-	}
 				break;
 	case ID_TEXT: {
 				main_dialog dlg;
