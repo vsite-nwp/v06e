@@ -2,6 +2,8 @@
 #include "nwpdlg.h"
 
 class main_dialog : public vsite::nwp::dialog {
+public:
+	tstring tstr;
 protected:
 	int idd() const override;
 	bool on_init_dialog() override;
@@ -9,6 +11,12 @@ protected:
 };
 
 class main_window : public vsite::nwp::window {
+public:
+	tstring txt;
+	LOGFONT lf;
+	COLORREF cr;
+	COLORREF back{ RGB(255,255,255) };
+	main_window();
 protected:
 	void on_paint(HDC hdc) override;
 	void on_command(int id) override;
