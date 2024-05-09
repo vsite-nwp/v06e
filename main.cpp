@@ -15,17 +15,21 @@ bool main_dialog::on_ok() {
 
 void get_font(HWND parent, LOGFONT& lf, COLORREF& cr)
 {
-	CHOOSEFONT cf{ sizeof CHOOSEFONT };
+	CHOOSEFONT cf;
+	LOGFONT chosenFont = lf;
+	ZeroMemory(&cf, sizeof cf);
+	cf.lStructSize = sizeof cf;
 	cf.Flags = CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS | CF_EFFECTS;
-	cf.hwndOwner = parent;
-	cf.lpLogFont = &lf;
-	::ChooseFont(&cf);
-	cr = cf.rgbColors;
+	cf.lpLogFont = &chosenFont;
+	if (ChooseFont(&cf)) {
+		cr = cf.rgbColors;
+		lf = chosenFont;
+	}
 }
 
 
 COLORREF get_color(HWND parent, COLORREF cur) {
-	COLORREF custom_colors[16]{ 0 };
+	static COLORREF custom_colors[16]{ 0 };
 	CHOOSECOLOR cc{ sizeof CHOOSECOLOR };
 	cc.Flags = CC_FULLOPEN | CC_RGBINIT;
 	cc.hwndOwner = parent;
@@ -43,22 +47,17 @@ main_window::main_window() {
 	HDC hdc = ::GetDC(0);
 
 	lf.lfHeight = -18 * ::GetDeviceCaps(hdc, LOGPIXELSY) / 72;
-	cr = RGB(0, 0, 0);
 	::ReleaseDC(0, hdc);
 }
 
 void main_window::on_paint(HDC hdc) {
-	if (txt.empty())
-	{
-		return;
-	}
 	RECT rect;
 	GetClientRect(*this, &rect);
 	HBRUSH background = CreateSolidBrush(back);
 	FillRect(hdc, &rect, background);
 	const double x = rect.right / 9.;
 	const double y = rect.bottom / static_cast<double>(txt.size());
-
+	::SetBkMode(hdc, TRANSPARENT);
 	HFONT hf = (HFONT)SelectObject(hdc, CreateFontIndirect(&lf));
 	SetTextColor(hdc, cr);
 	HBRUSH hb = CreateSolidBrush(cr);
@@ -75,10 +74,11 @@ void main_window::on_paint(HDC hdc) {
 			}
 		}
 		RECT r = { 8 * x, i * y, 9 * x, (i + 1) * y };
-		::SetBkMode(hdc, TRANSPARENT);
+		
 		DrawText(hdc, &txt[i], 1, &r, DT_VCENTER | DT_CENTER | DT_SINGLELINE);
 	}
 	DeleteObject((HFONT)SelectObject(hdc, hf));
+	DeleteObject((HBRUSH)SelectObject(hdc, background));
 }
 
 void main_window::on_command(int id) {

@@ -18,6 +18,7 @@ BEGIN
     BEGIN
         MENUITEM "&Text",                       ID_TEXT
         MENUITEM "&Font",                       ID_FONT
+		MENUITEM "&Background color",           ID_COLOR
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       ID_EXIT
     END

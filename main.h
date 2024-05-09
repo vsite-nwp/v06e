@@ -14,7 +14,7 @@ class main_window : public vsite::nwp::window {
 public:
 	tstring txt;
 	LOGFONT lf;
-	COLORREF cr;
+	COLORREF cr{RGB(0,0,0)};
 	COLORREF back{ RGB(255,255,255) };
 	main_window();
 protected:
