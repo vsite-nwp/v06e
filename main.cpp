@@ -79,6 +79,7 @@ void main_window::on_paint(HDC hdc) {
 	}
 	DeleteObject((HFONT)SelectObject(hdc, hf));
 	DeleteObject((HBRUSH)SelectObject(hdc, background));
+	DeleteObject((HBRUSH)SelectObject(hdc, hb));
 }
 
 void main_window::on_command(int id) {
