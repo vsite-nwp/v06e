@@ -53,33 +53,35 @@ main_window::main_window() {
 void main_window::on_paint(HDC hdc) {
 	RECT rect;
 	GetClientRect(*this, &rect);
-	HBRUSH background = CreateSolidBrush(back);
-	FillRect(hdc, &rect, background);
+	
+		brush backgroundColor(back);
+		sel_obj background(hdc, backgroundColor);
+
+	FillRect(hdc, &rect, backgroundColor);
+	::SetBkMode(hdc, TRANSPARENT);
+	SetTextColor(hdc, cr);
+
+	font f(lf);
+	sel_obj sf(hdc, f);
+
+	brush hb(cr);
+	sel_obj sb(hdc, hb);
 	const double x = rect.right / 9.;
 	const double y = rect.bottom / static_cast<double>(txt.size());
-	::SetBkMode(hdc, TRANSPARENT);
-	HFONT hf = (HFONT)SelectObject(hdc, CreateFontIndirect(&lf));
-	SetTextColor(hdc, cr);
-	HBRUSH hb = CreateSolidBrush(cr);
-	
+
 	for (size_t i = 0; i < txt.size(); ++i)
 	{
 		for (int j = 0; j < 8; ++j)
 		{
-			const RECT r = {j * x, i * y, (j + 1) * x, (i + 1) * y };
-
+			const RECT r = { j * x, i * y, (j + 1) * x, (i + 1) * y };
 			if ((txt[i] & (1 << (7 - j))) == 0)
 			{
 				FillRect(hdc, &r, hb);
 			}
 		}
 		RECT r = { 8 * x, i * y, 9 * x, (i + 1) * y };
-		
 		DrawText(hdc, &txt[i], 1, &r, DT_VCENTER | DT_CENTER | DT_SINGLELINE);
 	}
-	DeleteObject((HFONT)SelectObject(hdc, hf));
-	DeleteObject((HBRUSH)SelectObject(hdc, background));
-	DeleteObject((HBRUSH)SelectObject(hdc, hb));
 }
 
 void main_window::on_command(int id) {
